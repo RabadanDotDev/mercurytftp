@@ -25,6 +25,10 @@ class PacketTFTP:
         if(self.getOpcode() == OpcodeTFTP.ACK()):
             return  "[" + self.getOpcode().name   + "]" + \
                     "[" + str(self.getNumBlock()) + "]"
+        
+        if(self.getOpcode() == OpcodeTFTP.OACK()):
+            return  "[" + self.getOpcode().name   + "]" + \
+                    self.strOptions()
 
     def strOptions(self):
         txt = ""
@@ -47,6 +51,10 @@ class PacketTFTP:
 
         if(self.getOpcode() == OpcodeTFTP.ACK()):
             self.setNumBlockEncoded(rawPacket[2:4])
+                    
+        if(self.getOpcode() == OpcodeTFTP.OACK()):
+            parts = rawPacket[2:len(rawPacket)].split(b'\0')
+            self.setOptionsEncodedParts(parts)
 
     def getEncoded(self):
         if(self.getOpcode() == OpcodeTFTP.RRQ() or self.getOpcode() == OpcodeTFTP.WRQ()):
@@ -66,6 +74,11 @@ class PacketTFTP:
         if(self.getOpcode() == OpcodeTFTP.ACK()):
             return  self.getOpcodeEncoded() + \
                     self.getNumBlockEncoded()
+
+        if(self.getOpcode() == OpcodeTFTP.OACK()):
+            return  self.getOpcodeEncoded() + \
+                    self.getOptionsEncoded() + \
+                    (0).to_bytes(1, byteorder='big')
 
     # Opcode ------------------------------------------------------------------
     def setOpcode(self, opcode):
