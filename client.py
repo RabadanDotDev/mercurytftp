@@ -1,9 +1,31 @@
 #!/usr/bin/env python3
 from TransmissionTFTP import *
 
+print( \
+"""
+  __  __                             _______ ______ _______ _____  
+ |  \/  |                           |__   __|  ____|__   __|  __ \ 
+ | \  / | ___ _ __ ___ _   _ _ __ _   _| |  | |__     | |  | |__) |
+ | |\/| |/ _ \ '__/ __| | | | '__| | | | |  |  __|    | |  |  ___/ 
+ | |  | |  __/ | | (__| |_| | |  | |_| | |  | |       | |  | |     
+ |_|  |_|\___|_|  \___|\__,_|_|   \__, |_|  |_|       |_|  |_|     
+                                   __/ |                           
+                                  |___/                            
+                                
+    - Per Raul Rabadan Arroyo i Jaume Perez Medina
+""")
+
 # Defaults
 serverName = 'testxaco.rabadan.dev'
 serverPort = 12064
+
+serverNameIn = input("Servername (default: testxaco.rabadan.dev): ")
+if(serverNameIn != ""):
+    serverName = serverNameIn
+
+serverPortIn = input("Serverport (default: 12064): ")
+if(serverPortIn != ""):
+    serverPort = serverPortIn
 
 # Ask the user what do they want to do
 action = ""
