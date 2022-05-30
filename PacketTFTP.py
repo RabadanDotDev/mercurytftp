@@ -3,7 +3,7 @@ from OpcodeTFTP import *
 class PacketTFTP:
     # Common ------------------------------------------------------------------
     def __init__(self):
-        self.options = {}
+        self._options = {}
     
     def __str__(self):
         if(self.getOpcode() == OpcodeTFTP.NULL()):
@@ -15,8 +15,7 @@ class PacketTFTP:
                     "[" + "0"                                          + "]" + \
                     "[" + '\"' + self.getMode()                 + '\"' + "]" + \
                     "[" + "0"                                          + "]" + \
-                    "[" + '\"' + self.getNonStandardBlockSize() + '\"' + "]" + \
-                    "[" + "0"                                          + "]"
+                    self.strOptions()
 
         if(self.getOpcode() == OpcodeTFTP.DATA()):
             return  "[" + self.getOpcode().name                      + "]" + \
@@ -27,6 +26,12 @@ class PacketTFTP:
             return  "[" + self.getOpcode().name   + "]" + \
                     "[" + str(self.getNumBlock()) + "]"
 
+    def strOptions(self):
+        txt = ""
+        for k in self._options:
+            txt += "[\"" + k + "\"]" + "[0]" + "[\"" + self._options[k] + "\"]" + "[0]" 
+        return txt
+
     def setEncoded(self, rawPacket):
         self.setOpcodeEncoded(rawPacket[0:2])
 
@@ -34,7 +39,7 @@ class PacketTFTP:
             parts = rawPacket[2:len(rawPacket)].split(b'\0')
             self.setFilenameEncoded(parts[0])
             self.setModeEncoded(parts[1])
-            self.setNonStandardBlockSizeEncoded(parts[2])
+            self.setOptionsEncodedParts(parts[2:])
 
         if(self.getOpcode() == OpcodeTFTP.DATA()):
             self.setNumBlockEncoded(rawPacket[2:4])
@@ -50,7 +55,7 @@ class PacketTFTP:
                     (0).to_bytes(1, byteorder='big') + \
                     self.getModeEncoded() + \
                     (0).to_bytes(1, byteorder='big') + \
-                    self.getNonStandardBlockSizeEncoded() + \
+                    self.getOptionsEncoded() + \
                     (0).to_bytes(1, byteorder='big')
 
         if(self.getOpcode() == OpcodeTFTP.DATA()):
@@ -70,7 +75,7 @@ class PacketTFTP:
         return self._opcode
 
     def setOpcodeEncoded(self, opcode):
-        self._opcode= OpcodeTFTP.from_int(int.from_bytes(opcode, byteorder='big'))
+        self._opcode = OpcodeTFTP.from_int(int.from_bytes(opcode, byteorder='big'))
 
     def getOpcodeEncoded(self):
         return self._opcode.value.to_bytes(2, byteorder='big')
@@ -105,34 +110,38 @@ class PacketTFTP:
 
     # setOption ---------------------------------------------------------------
     def setOption(self, optionName, optionVal):
-        self.options[optionName] = optionVal
+        self._options[optionName] = optionVal
 
     def getOption(self, optionName):
         try:
-            return self.options[optionName]
+            return self._options[optionName]
         except KeyError:
             return ""
 
     def getOptions(self):
-        return self.options
+        return self._options
+
+    def setOptionEncoded(self, optionNameEncoded, optionValEncoded):
+        self._options[optionNameEncoded.decode(encoding='ascii')] = optionValEncoded.decode(encoding="ascii")
 
     def setOptionsEncodedParts(self, encodedParts):
-        encodedParts = 
+        it = iter(encodedParts)
+        for optionNameEncoded, optionValEncoded in zip(it, it):
+            self.setOptionEncoded(optionNameEncoded, optionValEncoded)
 
     def getOptionEncoded(self, optionName):
         try:
-            return (self.options[optionName] + '\0').encode(encoding='ascii', errors="ignore")
+            return (self._options[optionName] + '\0').encode(encoding='ascii', errors="ignore")
         except KeyError:
             return bytes()
 
     def getOptionsEncoded(self):
         # Encode options and values
-        opsEncoded = [[op.encode(), self.options[op].encode()] for op in self.options]
+        opsEncoded = [[op.encode(), self._options[op].encode()] for op in self._options]
         # Join options and values
         opsEncoded = [b'\0'.join(pair) for pair in opsEncoded]
         # Join all options and return
         return b'\0'.join(opsEncoded)
-        
 
     # NumBlock  ---------------------------------------------------------------
     def setNumBlock(self, numBlock):
