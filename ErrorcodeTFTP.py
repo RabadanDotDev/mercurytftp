@@ -40,6 +40,10 @@ class ErrorcodeTFTP:
         return ErrorcodeTFTP(7, "No such user.")
 
     @staticmethod
+    def InvalidOptions():
+        return ErrorcodeTFTP(8, "Invalid options.")
+
+    @staticmethod
     def from_int(v):
         if(v == 1):
             return ErrorcodeTFTP.FileNotFound()

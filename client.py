@@ -64,8 +64,8 @@ if (action == "GET" and modeText == "netascii"):
     tt.makeGET(request)
 
     while tt.isBufferInOpened():
-        data = tt.readData(packageSize)
-        f.sendText(data)
+        data = tt.readText(packageSize)
+        f.write(data)
 
     f.close()
 

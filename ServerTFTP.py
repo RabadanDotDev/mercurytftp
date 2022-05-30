@@ -4,6 +4,7 @@ from OpcodeTFTP import *
 from PacketTFTP import *
 from BytesFIFO  import *
 from TransmissionTFTP  import *
+from ExceptionTFTP  import *
 
 class ServerTFTP:
     # Common ------------------------------------------------------------------
@@ -29,23 +30,40 @@ class ServerTFTP:
             print("Request packet recieved (" + str(self.numPacketsRecv) +  "º) recived: " + str(packet))
             self.numPacketsRecv += 1
 
-            # Return if its a request, drop it otherwise
+            # Return if its a request, send an error and drop it otherwise
             if(packet.getOpcode() == OpcodeTFTP.RRQ() or packet.getOpcode() == OpcodeTFTP.WRQ()):
                 return (packet, origin)
+            else:
+                packet = PacketTFTP()
+                packet.setOpcode(OpcodeTFTP.ERROR())
+                if(packet.getOpcode() == OpcodeTFTP.NULL()):
+                    packet.setErrorcode(ErrorcodeTFTP.IlegalTFTPOperation())
+                else:
+                    packet.setErrorcode(ErrorcodeTFTP.UnknownTransferID())
+                packet.setErrorMsg("")
+                self.socket.sendto(packet.getEncoded(), origin)
+                print("Wrong request recieved. Answering: " + str(packet))
+
 
     def acceptConncetion(self, GETHandler, PUTHandler):
         (packet, origin) = self.__waitRequestPacket()
-        packetSize = int(packet.getNonStandardBlockSize())
+
+        packetSize = 512
+        recievedOpts = packet.getOptions()
+        opts = {}
+        for opt in recievedOpts:
+            if(opt.lower() == "blksize"):
+                opts[opt] = recievedOpts[opt]
+                packetSize = int(recievedOpts[opt])
+                    
         transmission = TransmissionTFTP(packetSize, str.lower(packet.getMode()))
         transmission.setPeer(origin[0], origin[1])
+        transmission.setRecognizedServerOptions(opts)
 
         if(packet.getOpcode() == OpcodeTFTP.RRQ()):
             thread = threading.Thread(target=GETHandler, args=(transmission,packet.getFilename(),))
         elif(packet.getOpcode() == OpcodeTFTP.WRQ()):
             thread = threading.Thread(target=PUTHandler, args=(transmission,packet.getFilename(),))
-        else:
-            print("Unknown request recieved")
-            return
 
         self.socket.close()
         transmission.bind(self.listenAdress, self.port)

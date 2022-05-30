@@ -140,7 +140,7 @@ class PacketTFTP:
 
     # setOption ---------------------------------------------------------------
     def setOption(self, optionName, optionVal):
-        self._options[optionName] = optionVal
+        self._options[optionName] = str(optionVal)
 
     def getOption(self, optionName):
         try:
