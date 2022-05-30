@@ -1,4 +1,5 @@
 from OpcodeTFTP import *
+from ErrorcodeTFTP import *
 
 class PacketTFTP:
     # Common ------------------------------------------------------------------
@@ -25,6 +26,12 @@ class PacketTFTP:
         if(self.getOpcode() == OpcodeTFTP.ACK()):
             return  "[" + self.getOpcode().name   + "]" + \
                     "[" + str(self.getNumBlock()) + "]"
+
+        if(self.getOpcode() == OpcodeTFTP.ERROR()):
+            return  "[" + self.getOpcode().name       + "]" + \
+                    "[" + self.getErrorcode().meaning + "]" + \
+                    "[" + self.getErrorMsg()          + "]" + \
+                    "[" + "0"                         + "]"
         
         if(self.getOpcode() == OpcodeTFTP.OACK()):
             return  "[" + self.getOpcode().name   + "]" + \
@@ -51,6 +58,10 @@ class PacketTFTP:
 
         if(self.getOpcode() == OpcodeTFTP.ACK()):
             self.setNumBlockEncoded(rawPacket[2:4])
+
+        if(self.getOpcode() == OpcodeTFTP.ERROR()):
+            self.setErrorcodeEncoded(rawPacket[2:4])
+            self.setErrorMsgEncoded(rawPacket[4:len(rawPacket)-1])
                     
         if(self.getOpcode() == OpcodeTFTP.OACK()):
             parts = rawPacket[2:len(rawPacket)].split(b'\0')
@@ -74,6 +85,12 @@ class PacketTFTP:
         if(self.getOpcode() == OpcodeTFTP.ACK()):
             return  self.getOpcodeEncoded() + \
                     self.getNumBlockEncoded()
+
+        if(self.getOpcode() == OpcodeTFTP.ERROR()):
+            return  self.getOpcodeEncoded() + \
+                    self.getErrorcodeEncoded() + \
+                    self.getErrorMsgEncoded() + \
+                    (0).to_bytes(1, byteorder='big')
 
         if(self.getOpcode() == OpcodeTFTP.OACK()):
             return  self.getOpcodeEncoded() + \
@@ -175,3 +192,30 @@ class PacketTFTP:
 
     def getDataEncoded(self):
         return self._data
+
+    # Error -------------------------------------------------------------------
+    def setErrorcode(self, errorcode):
+        self._errorcode = errorcode
+    
+    def setErrorcodeEncoded(self, errorcodeEncoded):
+        self._errorcode = ErrorcodeTFTP.from_int(int.from_bytes(errorcodeEncoded, byteorder='big'))
+
+    def getErrorcode(self):
+        return self._errorcode
+    
+    def getErrorcodeEncoded(self):
+        return (self._errorcode.value).to_bytes(2, byteorder='big')
+    
+    def setErrorMsg(self, msg):
+        self._errorMsg = msg
+    
+    def getErrorMsg(self):
+        return self._errorMsg
+
+    def setErrorMsgEncoded(self, msgEncoded):
+        self._errorMsg = msgEncoded.decode(encoding='ascii', errors="ignore")
+
+    def getErrorMsgEncoded(self):
+        return self._errorMsg.encode(encoding='ascii', errors="ignore")
+    
+
