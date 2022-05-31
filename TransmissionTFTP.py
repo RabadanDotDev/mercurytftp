@@ -28,7 +28,7 @@ class TransmissionTFTP:
         self.forceStop = False
         self.hasRecognizedOptions = False
 
-        print("TransmissionTFTP created with blocksize: [" + str(blockSize) + "] and mode [" + mode + "].")
+        print("Creada transimissió TFTP amb mida de bloc: [" + str(blockSize) + "] i mode [" + mode + "].")
 
     def __incrementNumCurrentBlock(self):
         self.numCurrentBlock = (self.numCurrentBlock + 1) % 65536
@@ -40,10 +40,10 @@ class TransmissionTFTP:
                 self.socket.sendto(packet.getEncoded(), (self.hostname, self.port))
                 self.numPacketsSentRecv += 1
             except Exception as e:
-                print("Error sending packet (" + str(self.numPacketsSentRecv) + "): " + str(e) + ". Retrying in 2 seconds...")
+                print("Error a l'enviar el paquet (" + str(self.numPacketsSentRecv) + "): " + str(e) + ". Tornant a intentar en 2 segons...")
                 time.sleep(2)
             else:
-                print("Packet (" + str(self.numPacketsSentRecv) +  "º) sent: " + str(packet))
+                print("Paquet (" + str(self.numPacketsSentRecv) +  "º) eniat: " + str(packet))
                 return
     
     def __readPacket(self, expectedOpcodes):
@@ -56,15 +56,15 @@ class TransmissionTFTP:
             except OSError as o:
                 packet.setOpcode(OpcodeTFTP.NULL())
                 packet.setNumBlock(-1)
-                print("Error on read packet: " + str(o))
+                print("Error al llegir paquet: " + str(o))
                 return packet
 
             packet.setEncoded(recievedData)
 
-            print("Packet (" + str(self.numPacketsSentRecv) +  "º) recived: "          \
+            print("Paquet (" + str(self.numPacketsSentRecv) +  "º) rebut: "          \
                     + str(origin[0]) + ":" + str(origin[1]) + "->" + str(packet) + " " \
-                    + "Expected opcodes: " + ' '.join([o.name for o in expectedOpcodes]) + " " \
-                    + "Current seq number: " + str(self.numCurrentBlock)               \
+                    + "Opcodes esperats: " + ' '.join([o.name for o in expectedOpcodes]) + " " \
+                    + "Nombre de seqüència actual: " + str(self.numCurrentBlock)               \
                 )
             self.numPacketsSentRecv += 1
 
@@ -90,7 +90,7 @@ class TransmissionTFTP:
                 errorPacket.setErrorcode(ErrorcodeTFTP.IlegalTFTPOperation())
                 errorPacket.setErrorMsg("")
                 self.__sendPacket(errorPacket)
-                raise ExceptionTFTP("Malformed package recieved.")
+                raise ExceptionTFTP("Paquet corrupte rebut.")
 
             # Return if it matches, drop it otherwise
             if(packet.getOpcode() in expectedOpcodes):
@@ -162,7 +162,7 @@ class TransmissionTFTP:
             # Send the packet until confirmation
             self.__sendPacket(packet)
             while (self.__readACK() != self.numCurrentBlock and not self.forceStop):
-                print("Wrong ACK recieved or lost, resending DATA...")
+                print("ACK equivocat rebut o perdut, re-enviant DATA...")
                 self.__sendPacket(packet)
 
             if(self.forceStop):
@@ -179,7 +179,8 @@ class TransmissionTFTP:
         try:
             self.__sendData()
         except Exception as e:
-            print("Send data thread ended because an exception occured: " + str(e))
+            print("L'enviament de dades ha estat interromput degut a una excepció." + str(e))
+            
             self.bufferInClose()
 
     def __recvData(self, packetDataRequest):
@@ -190,7 +191,7 @@ class TransmissionTFTP:
 
             # Send old ACK/dataRequest if its not the expected num     
             while (packet.getNumBlock() != self.numCurrentBlock and not self.forceStop):
-                print("Wrong DATA recieved or lost, resending ACK/request...")
+                print("DATA equivocat rebut o perdut, re-enviant ACK/petició...")
                 self.__sendPacket(packetDataRequest)
                 packet = self.__readDATA()
 
@@ -213,7 +214,7 @@ class TransmissionTFTP:
         try:
             self.__recvData(packetDataRequest)
         except Exception as e:
-            print("Recv data thread ended because an exception occured: " + str(e))
+            print("La recepció de dades ha acabat degut a una excepció: " + str(e))
             self.bufferInClose()
 
     def setPeer(self, hostname = "localhost", welcomePort = 69, defTimeout = 1):
@@ -225,7 +226,7 @@ class TransmissionTFTP:
         # Create socket
         self.socket = socket(AF_INET,SOCK_DGRAM)
         self.socket.settimeout(defTimeout)
-        print("Created UDP socket to send messages to [" + hostname + "]:[" + str(welcomePort) + "]")
+        print("Socket UDP creat per enviar missatges a [" + hostname + "]:[" + str(welcomePort) + "]")
 
     # make PUT/GET ------------------------------------------------------------
     def makePUT(self, filename):
@@ -260,9 +261,9 @@ class TransmissionTFTP:
                 if (opt == "blksize"):
                     self.blockSize = int(opts["blksize"])
                 else:
-                    self._sendError(ErrorcodeTFTP.InvalidOptions, "Invalid response options")
+                    self._sendError(ErrorcodeTFTP.InvalidOptions(), "Opcions de transmissió invalides")
                     self.bufferInClose()
-                    print("Invalid options in OACK recieved")
+                    print("Opcions al 0ACK rebut invàlides")
                     return False
         else:
             self.blockSize = 512
@@ -303,9 +304,9 @@ class TransmissionTFTP:
                 if (opt == "blksize"):
                     self.blockSize = int(opts["blksize"])
                 else:
-                    self._sendError(ErrorcodeTFTP.InvalidOptions, "Invalid response options")
+                    self._sendError(ErrorcodeTFTP.InvalidOptions, "Opcions de resposta invàlides")
                     self.bufferInClose()
-                    print("Invalid options in OACK recieved")
+                    print("Opcions al  0ACK rebut invàlides")
                     return False
         else:
             self.blockSize = 512
@@ -349,7 +350,7 @@ class TransmissionTFTP:
                     self.__sendPacket(packet)
                 
                 if(self.forceStop):
-                    print("Error in reading ACK0")
+                    print("Error al llegir ACK0")
                     self.bufferInClose()
                     
             # Start send data thread
