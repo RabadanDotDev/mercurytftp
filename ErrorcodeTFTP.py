@@ -9,39 +9,39 @@ class ErrorcodeTFTP:
 
     @staticmethod
     def NULL():
-        return ErrorcodeTFTP(0, "Not defined, see error message (if any).")
+        return ErrorcodeTFTP(0, "No definit, mirar missatge d'error (si n'hi ha).")
 
     @staticmethod
     def FileNotFound():
-        return ErrorcodeTFTP(1, "File not found.")
+        return ErrorcodeTFTP(1, "Fitxer no trobat.")
 
     @staticmethod
     def AccessViolation():
-        return ErrorcodeTFTP(2, "Access violation.")
+        return ErrorcodeTFTP(2, "Access denegat.")
         
     @staticmethod
     def DiskFull():
-        return ErrorcodeTFTP(3, "Disk full or allocation exceeded.")
+        return ErrorcodeTFTP(3, "Disc ple.")
         
     @staticmethod
     def IlegalTFTPOperation():
-        return ErrorcodeTFTP(4, "Illegal TFTP operation.")
+        return ErrorcodeTFTP(4, "Operació TFTP no vàlida.")
 
     @staticmethod
     def UnknownTransferID():
-        return ErrorcodeTFTP(5, "Unknown transfer ID.")
+        return ErrorcodeTFTP(5, "ID de transmissió desconegut.")
 
     @staticmethod
     def AlreadyExists():
-        return ErrorcodeTFTP(6, "File already exists.")
+        return ErrorcodeTFTP(6, "El fitxer ja existeix.")
 
     @staticmethod
     def NoSuchUser():
-        return ErrorcodeTFTP(7, "No such user.")
+        return ErrorcodeTFTP(7, "Usuari inexistent.")
 
     @staticmethod
     def InvalidOptions():
-        return ErrorcodeTFTP(8, "Invalid options.")
+        return ErrorcodeTFTP(8, "Opcions no vàlides.")
 
     @staticmethod
     def from_int(v):
