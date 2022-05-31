@@ -12,18 +12,18 @@ print( \
                                    __/ |                           
                                   |___/                            
                                 
-    - Per Raul Rabadan Arroyo i Jaume Perez Medina -
+    - Per Raul Rabadan Arroyo i Jaume Pérez Medina -
 """)
 
 # Defaults
 serverName = 'testxaco.rabadan.dev'
 serverPort = 12064
 
-serverNameIn = input("Servername (default: testxaco.rabadan.dev): ")
+serverNameIn = input("Nom del servidor (per defecte: testxaco.rabadan.dev): ")
 if(serverNameIn != ""):
     serverName = serverNameIn
 
-serverPortIn = input("Serverport (default: 12064): ")
+serverPortIn = input("Port del servidor (per defecte: 12064): ")
 if(serverPortIn != ""):
     serverPort = int(serverPortIn)
 
@@ -35,18 +35,18 @@ while(action != "GET" and action != "PUT"):
 # Ask the user for a package size
 packageSizeText = "0"
 while(not packageSizeText in ["32","64","128","256","512","1024","2048"]):
-    packageSizeText = input("Select a valid package size (32, 64, 128, 256, 512, 1024, 2048) bytes: ")
+    packageSizeText = input("Escull una mida de paquet vàlida: (32, 64, 128, 256, 512, 1024, 2048) bytes: ")
 packageSize = int(packageSizeText)
 
 # Ask the user for the mode
 modeText = "0"
 while(not modeText in ["octet","netascii"]):
-    modeText = input("Select a valid mode (octet, netascii): ")
+    modeText = input("Escull un mode de transmissió vàlid (octet, netascii): ")
 
 # Ask the user for a file
 request = ""
-while(len(request.encode()) <= 0 or 512 < len(request.encode())):
-    request = input("Filename (between 1 and ?? characters): ")
+while(len(request.encode()) <= 0 or 128 < len(request.encode())):
+    request = input("Nom del fitxer (entre 1 i 128 characters): ")
 
 tt = TransmissionTFTP(blockSize = packageSize, mode=modeText)
 tt.setPeer(hostname = serverName, welcomePort = serverPort)
