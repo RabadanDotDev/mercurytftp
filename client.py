@@ -12,7 +12,7 @@ print( \
                                    __/ |                           
                                   |___/                            
                                 
-    - Per Raul Rabadan Arroyo i Jaume Perez Medina
+    - Per Raul Rabadan Arroyo i Jaume Perez Medina -
 """)
 
 # Defaults
@@ -25,7 +25,7 @@ if(serverNameIn != ""):
 
 serverPortIn = input("Serverport (default: 12064): ")
 if(serverPortIn != ""):
-    serverPort = serverPortIn
+    serverPort = int(serverPortIn)
 
 # Ask the user what do they want to do
 action = ""
