@@ -18,15 +18,15 @@ def handle_GET(t, filename):
             f = open(filename, "r")
     except (FileNotFoundError, OSError) as e:
         if(type(e) == FileNotFoundError):
-            print(filename + "not found. Finishing conection...")
+            print(filename + "no trobat. Finalitzant connexió...")
             t.sendErrorAndStop(ErrorcodeTFTP.FileNotFound(), "")
         elif(e.errno == errno.EACCES):
-            print("Access violation. Finishing conection...")
+            print("Accés denegat. Finalitzant connexió...")
             t.sendErrorAndStop(ErrorcodeTFTP.AccessViolation(), "")
         else:
-            print("Could not open the requested file: " + filename)
-            print(filename + "already exists. Finishing conection...")
-            t.sendErrorAndStop(ErrorcodeTFTP.NULL(), "Unkown error")
+            print("No s'ha pogut el fitxer demanat: " + filename)
+            print(filename + "ja existeix. Finalitzant connexió...")
+            t.sendErrorAndStop(ErrorcodeTFTP.NULL(), "Error desconegut")
     else:
         try:
             while t.isBufferInOpened():
@@ -40,15 +40,15 @@ def handle_GET(t, filename):
                 if(len(data) < dataReadBlock):
                     t.bufferInClose()
         except OSError as e:
-            print("Could not open the requested file: " + filename)
-            print(filename + "already exists. Finishing conection...")
-            t.sendErrorAndStop(ErrorcodeTFTP.NULL(), "Unkown error")
+            print("No s'ha pogut el fitxer demanat: " + filename)
+            print(filename + "ja existeix. Finalitzant connexió...")
+            t.sendErrorAndStop(ErrorcodeTFTP.NULL(), "Error desconegut")
             
         f.close()
 
         t.waitForTransmissionCompletion()
 
-    print("GET ended")
+    print("GET finalitzat")
 
 def handle_PUT(t, filename):
     t.startServerTransmission(dataSender=False)
@@ -61,18 +61,18 @@ def handle_PUT(t, filename):
             f = open(filename, "x")
     except (FileExistsError, OSError) as e:
         if(type(e) == FileExistsError):
-            print(filename + "already exists. Finishing conection...")
+            print(filename + "ja existeix. Finalitzant connexió...")
             t.sendErrorAndStop(ErrorcodeTFTP.AlreadyExists(), "")
         elif(e.errno == errno.ENOSPC):
-            print("No space available. Finishing conection...")
+            print("No hi ha espai disponible. Finalitzant connexió...")
             t.sendErrorAndStop(ErrorcodeTFTP.DiskFull(), "")
         elif(e.errno == errno.EACCES):
-            print("Access violation. Finishing conection...")
+            print("Accés denegat. Finalitzant connexió...")
             t.sendErrorAndStop(ErrorcodeTFTP.AccessViolation(), "")
         else:
-            print("Could not open the requested file: " + filename)
-            print(filename + "already exists. Finishing conection...")
-            t.sendErrorAndStop(ErrorcodeTFTP.NULL(), "Unkown error")
+            print("No s'ha pogut obrir el fitxer demanat: " + filename)
+            print(filename + "ja existeix. Finalitzant connexió...")
+            t.sendErrorAndStop(ErrorcodeTFTP.NULL(), "Error desconegut")
     else:
         try:
             while t.isBufferInOpened():
@@ -84,17 +84,17 @@ def handle_PUT(t, filename):
                 f.write(data)
         except OSError as e:
             if(e.errno == errno.ENOSPC):
-                print("No space available. Finishing conection...")
+                print("No hi ha espai dispobible. Finalitzant connexió...")
                 t.sendErrorAndStop(ErrorcodeTFTP.DiskFull(), "")
             else:
-                print("Could not open the requested file: " + filename)
-                print(filename + "already exists. Finishing conection...")
-                t.sendErrorAndStop(ErrorcodeTFTP.NULL(), "Unkown error")
+                print("No s'ha pogut obrir el fitxer demanat: " + filename)
+                print(filename + "ja existeix. Finalitzant connexió...")
+                t.sendErrorAndStop(ErrorcodeTFTP.NULL(), "Error desconegut")
 
         f.close()
     
     t.waitForTransmissionCompletion()
-    print("PUT ended")
+    print("PUT finalitzat")
 
 serv = ServerTFTP(listenAdress = listenAdress, port = welcomePort)
 
