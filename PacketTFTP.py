@@ -5,7 +5,9 @@ class PacketTFTP:
     # Common ------------------------------------------------------------------
     def __init__(self):
         self._options = {}
-    
+
+    # Obtenir string que representa el paquet. Assumeix que el paquet esta ben 
+    # format si el opcode no es NULL.    
     def __str__(self):
         if(self.getOpcode() == OpcodeTFTP.NULL()):
             return  "[" + self.getOpcode().name + "]"
@@ -37,12 +39,15 @@ class PacketTFTP:
             return  "[" + self.getOpcode().name   + "]" + \
                     self.strOptions()
 
+    # Obtenir string de la llista d'opcions com s'afegiria al RRQ/WRQ
     def strOptions(self):
         txt = ""
         for k in self._options:
             txt += "[\"" + k + "\"]" + "[0]" + "[\"" + self._options[k] + "\"]" + "[0]" 
         return txt
 
+    # Definir el paquet segons bytes rebuts. Si el opcode es correcte, asumeix 
+    # que la resta del paquet també ho es
     def setEncoded(self, rawPacket):
         self.setOpcodeEncoded(rawPacket[0:2])
 
@@ -67,6 +72,8 @@ class PacketTFTP:
             parts = rawPacket[2:len(rawPacket)].split(b'\0')
             self.setOptionsEncodedParts(parts)
 
+    # Obtenir el paquet codificat en binari. Assumeix que el paquet esta ben 
+    # format si el opcode no es NULL.
     def getEncoded(self):
         if(self.getOpcode() == OpcodeTFTP.RRQ() or self.getOpcode() == OpcodeTFTP.WRQ()):
             return  self.getOpcodeEncoded() + \
