@@ -18,7 +18,7 @@ class ServerTFTP:
         # Create socket
         self.socket = socket(AF_INET,SOCK_DGRAM)
         self.socket.bind((listenAdress, port))
-        print("Binded Server UDP socket to [" + listenAdress + "]:[" + str(port) + "]")
+        print("Socket del servidor UDP enllaçat a [" + listenAdress + "]:[" + str(port) + "]")
     
     def __waitRequestPacket(self):
         while True:
@@ -27,7 +27,7 @@ class ServerTFTP:
             packet = PacketTFTP()
             packet.setEncoded(recievedData)
 
-            print("Request packet recieved (" + str(self.numPacketsRecv) +  "º) recived: " + str(packet))
+            print("Paquet de petició (" + str(self.numPacketsRecv) +  "º) rebut: " + str(packet))
             self.numPacketsRecv += 1
 
             # Return if its a request, send an error and drop it otherwise
@@ -42,7 +42,7 @@ class ServerTFTP:
                     packet.setErrorcode(ErrorcodeTFTP.UnknownTransferID())
                 packet.setErrorMsg("")
                 self.socket.sendto(packet.getEncoded(), origin)
-                print("Wrong request recieved. Answering: " + str(packet))
+                print("Petició rebuda incorrecta. Contestant: " + str(packet))
 
 
     def acceptConncetion(self, GETHandler, PUTHandler):
@@ -67,15 +67,16 @@ class ServerTFTP:
 
         self.socket.close()
         transmission.bind(self.listenAdress, self.port)
-        print("Closed server socket and rebinded TransmissionTFTP UDP socket to [" + self.listenAdress + "]:[" + str(self.port) + "]")
+        print("S'ha tancat el socket del servidor i s'ha re-enllaçat el socket de la transmissió TFTP UDP a [" + self.listenAdress + "]:[" + str(self.port) + "]")
+       
 
         thread.start()
         thread.join()
-        print("Transmission done")
+        print("Transmissió completada.")
 
         transmission.closeInternalSocket()
-        print("Tranmsision socket closed")
+        print("Socket de transmissió tancat.")
 
         self.socket = socket(AF_INET,SOCK_DGRAM)
         self.socket.bind((self.listenAdress, self.port))
-        print("Rebinded Server UDP socket to [" + self.listenAdress + "]:[" + str(self.port) + "]")
+        print("Socket UDP del servidor re-enllaçat a [" + self.listenAdress + "]:[" + str(self.port) + "]")
