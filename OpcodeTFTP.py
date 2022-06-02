@@ -1,4 +1,5 @@
 
+# Classe auxiliar per definir els codis d'operació y el seus texts
 class OpcodeTFTP:
     def __init__(self, value, name):
         self.value = value

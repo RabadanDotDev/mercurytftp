@@ -1,13 +1,14 @@
 from OpcodeTFTP import *
 from ErrorcodeTFTP import *
 
+# Classe per facilitar la creació y repcepció de paquets TFTP
 class PacketTFTP:
     # Common ------------------------------------------------------------------
     def __init__(self):
         self._options = {}
 
     # Obtenir string que representa el paquet. Assumeix que el paquet esta ben 
-    # format si el opcode no es NULL.    
+    # format si el opcode no es NULL.
     def __str__(self):
         if(self.getOpcode() == OpcodeTFTP.NULL()):
             return  "[" + self.getOpcode().name + "]"
@@ -105,73 +106,96 @@ class PacketTFTP:
                     (0).to_bytes(1, byteorder='big')
 
     # Opcode ------------------------------------------------------------------
+    # Seleccionar el codi d'operació del paquet
     def setOpcode(self, opcode):
         self._opcode = opcode
 
+    # Recuperar el codi d'operació del paquet
     def getOpcode(self):
         return self._opcode
 
+    # Seleccionar el codi d'operació a partir de la versió codificada bytes d'aquest
     def setOpcodeEncoded(self, opcode):
         self._opcode = OpcodeTFTP.from_int(int.from_bytes(opcode, byteorder='big'))
 
+    # Recuperar el codi d'operació del paquet en forma codificada
     def getOpcodeEncoded(self):
         return self._opcode.value.to_bytes(2, byteorder='big')
 
     # Filename ----------------------------------------------------------------
+    # Seleccionar el nom d'arxiu per un RRQ/WRQ
     def setFilename(self, filename):
         filenameAsciiConverted = filename.encode(encoding='ascii', errors="ignore").decode(encoding='ascii')
         self._filename = filenameAsciiConverted
 
+    # Obtenir el nom de l'arxiu seleccionat
     def getFilename(self):
         return self._filename
 
+    # Seleccionar el nom d'arxiu per un RRQ/WRQ a partir de la versió 
+    # codificada d'aquest
     def setFilenameEncoded(self, filename):
         self._filename = filename.decode(encoding='ascii', errors="ignore")
 
+    # Recuperar el nom de l'arxiu seleccionat en forma codificada
     def getFilenameEncoded(self):
         return self._filename.encode(encoding='ascii', errors="ignore")
     
     # Mode --------------------------------------------------------------------
+    # Seleccionar el mode de transmissió per un RRQ/WRQ
     def setMode(self, mode):
         modeAsciiConverted = mode.encode(encoding='ascii', errors="ignore").decode(encoding='ascii')
         self._mode = modeAsciiConverted
     
+    # Recuperar el mode de transmissió seleccionat
     def getMode(self):
         return self._mode
 
+    # Seleccionar el mode de transmissió per un RRQ/WRQ a partir de la versió 
+    # codificada d'aquest
     def setModeEncoded(self, mode):
         self._mode = mode.decode(encoding='ascii', errors="ignore")
 
+    # Recuperar  el mode de transmissió seleccionat en forma codificada
     def getModeEncoded(self):
         return self._mode.encode(encoding='ascii', errors="ignore")
 
     # setOption ---------------------------------------------------------------
+    # Seleccionar/definir el valor d'una opció
     def setOption(self, optionName, optionVal):
         self._options[optionName] = str(optionVal)
 
+    # Recuperar el valor d'una opció
     def getOption(self, optionName):
         try:
             return self._options[optionName]
         except KeyError:
             return ""
 
+    # Recuperar totes les opcions definides
     def getOptions(self):
         return self._options
 
+    # Seleccionar/definir el valor d'una opció a partir de la versió codificada 
+    # d'aquest
     def setOptionEncoded(self, optionNameEncoded, optionValEncoded):
         self._options[optionNameEncoded.decode(encoding='ascii')] = optionValEncoded.decode(encoding="ascii")
 
+    # Seleccionar/definir el valor d'una opció a partir de una llista de opcions
+    # codificades
     def setOptionsEncodedParts(self, encodedParts):
         it = iter(encodedParts)
         for optionNameEncoded, optionValEncoded in zip(it, it):
             self.setOptionEncoded(optionNameEncoded, optionValEncoded)
 
+    # Recuperar el valor d'una opció en forma codificada
     def getOptionEncoded(self, optionName):
         try:
             return (self._options[optionName] + '\0').encode(encoding='ascii', errors="ignore")
         except KeyError:
             return bytes()
 
+    # Recuperar el valor de totes les opcions en forma codificada separades per '\0'
     def getOptionsEncoded(self):
         # Encode options and values
         opsEncoded = [[op.encode(), self._options[op].encode()] for op in self._options]
@@ -181,47 +205,63 @@ class PacketTFTP:
         return b'\0'.join(opsEncoded)
 
     # NumBlock  ---------------------------------------------------------------
+    # Seleccionar el número de bloc d'un ACK/DATA/OACK
     def setNumBlock(self, numBlock):
         self._numBlock = numBlock
 
+    # Recuperar el número de bloc d'un ACK/DATA/OACK
     def getNumBlock(self):
         return self._numBlock
 
+    # Seleccionar el número de bloc d'un ACK/DATA/OACK a partir de la versió 
+    # codificada
     def setNumBlockEncoded(self, numBlock):
         self._numBlock = int.from_bytes(numBlock, byteorder='big')
 
+    # Recuperar el número de bloc d'un ACK/DATA/OACK en forma codificada
     def getNumBlockEncoded(self):
         return self._numBlock.to_bytes(2, byteorder='big')
 
     # Data  -------------------------------------------------------------------
+    # Introducció de dades d'un paquet DATA
     def setDataEncoded(self, data):
         self._data = data
 
+    # Recuperació de dades d'un paquet DATA
     def getDataEncoded(self):
         return self._data
 
     # Error -------------------------------------------------------------------
+    # Selecció del errorcode d'un paquet ERROR
     def setErrorcode(self, errorcode):
         self._errorcode = errorcode
     
+    # Selecció del errorcode d'un paquet ERROR a partir de la versió codificada
     def setErrorcodeEncoded(self, errorcodeEncoded):
         self._errorcode = ErrorcodeTFTP.from_int(int.from_bytes(errorcodeEncoded, byteorder='big'))
 
+    # Recuperació del errorcode d'un paquet ERROR
     def getErrorcode(self):
         return self._errorcode
     
+    # Recuperació del errorcode d'un paquet ERROR en forma codificada
     def getErrorcodeEncoded(self):
         return (self._errorcode.value).to_bytes(2, byteorder='big')
     
+    # Introducció del missatge d'un paquet ERROR
     def setErrorMsg(self, msg):
         self._errorMsg = msg
     
+    # Recuperació del missatge d'un paquet ERROR
     def getErrorMsg(self):
         return self._errorMsg
 
+    # Introducció del missatge d'un paquet ERROR a partir de la versió 
+    # codificada
     def setErrorMsgEncoded(self, msgEncoded):
         self._errorMsg = msgEncoded.decode(encoding='ascii', errors="ignore")
 
+    # Recuperació del missatge d'un paquet d'ERROR en forma codificada
     def getErrorMsgEncoded(self):
         return self._errorMsg.encode(encoding='ascii', errors="ignore")
     

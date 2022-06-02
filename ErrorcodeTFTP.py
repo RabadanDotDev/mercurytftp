@@ -1,4 +1,5 @@
 
+# Clase auxiliar per definir els codis d'error y els seu texts
 class ErrorcodeTFTP:
     def __init__(self, value, meaning):
         self.value = value

@@ -1,5 +1,6 @@
 import threading
 
+# Classe per controlar la entrada i sortida de un FIFO en múltiples threads
 class BytesFIFO:
     def __init__(self):
         self.__buff = bytearray()

@@ -2,15 +2,32 @@
 from ServerTFTP import *
 import errno
 
-# Defaults
+print( \
+"""
+  __  __                             _______ ______ _______ _____  
+ |  \/  |                           |__   __|  ____|__   __|  __ \ 
+ | \  / | ___ _ __ ___ _   _ _ __ _   _| |  | |__     | |  | |__) |
+ | |\/| |/ _ \ '__/ __| | | | '__| | | | |  |  __|    | |  |  ___/ 
+ | |  | |  __/ | | (__| |_| | |  | |_| | |  | |       | |  | |     
+ |_|  |_|\___|_|  \___|\__,_|_|   \__, |_|  |_|       |_|  |_|     
+                                   __/ |                           
+                                  |___/                            
+                                
+    - Per Raul Rabadan Arroyo i Jaume Pérez Medina -
+""")
+
+# Valors per defecte
 listenAdress = ''
 welcomePort = 12064
-            
-def handle_GET(t, filename):
-    t.startServerTransmission(dataSender=True)
 
+# Funció per tractar un GET per part d'un client. Assumeix que t és una
+# TransmissionTFTP ja inicialtizat
+def handle_GET(t, filename):
+    # Iniciar conexió
+    t.startServerTransmission(dataSender=True)
     dataReadBlock = t.getBlockSize()
 
+    # Obrir arxiu
     try:
         if(t.getMode() == "octet"):
             f = open(filename, "rb")
@@ -27,29 +44,33 @@ def handle_GET(t, filename):
             print("No s'ha pogut el fitxer demanat: " + filename)
             print(filename + "ja existeix. Finalitzant connexió...")
             t.sendErrorAndStop(ErrorcodeTFTP.NULL(), "Error desconegut")
-    else:
-        try:
-            while t.isBufferInOpened():
-                data = f.read(dataReadBlock)
+        return
 
-                if(t.getMode() == "octet"):
-                    t.sendData(data)
-                else:
-                    t.sendText(data)
-                
-                if(len(data) < dataReadBlock):
-                    t.bufferInClose()
-        except OSError as e:
-            print("No s'ha pogut el fitxer demanat: " + filename)
-            print(filename + "ja existeix. Finalitzant connexió...")
-            t.sendErrorAndStop(ErrorcodeTFTP.NULL(), "Error desconegut")
+    # Trasmetre l'arxiu
+    try:
+        while t.isBufferInOpened():
+            data = f.read(dataReadBlock)
+
+            if(t.getMode() == "octet"):
+                t.sendData(data)
+            else:
+                t.sendText(data)
             
-        f.close()
-
-        t.waitForTransmissionCompletion()
-
+            if(len(data) < dataReadBlock):
+                t.bufferInClose()
+    except OSError as e:
+        print("No s'ha pogut el fitxer demanat: " + filename)
+        print(filename + "ja existeix. Finalitzant connexió...")
+        t.sendErrorAndStop(ErrorcodeTFTP.NULL(), "Error desconegut")
+        return
+        
+    # Tancar connexió
+    f.close()
+    t.waitForTransmissionCompletion()
     print("GET finalitzat")
 
+# Funció per tractar un PUT per part d'un client. Assumeix que t és una
+# TransmissionTFTP ja inicialtizat
 def handle_PUT(t, filename):
     t.startServerTransmission(dataSender=False)
 
@@ -96,7 +117,7 @@ def handle_PUT(t, filename):
     t.waitForTransmissionCompletion()
     print("PUT finalitzat")
 
+# Crear servidor i esperar per connexions
 serv = ServerTFTP(listenAdress = listenAdress, port = welcomePort)
-
 while True:
     serv.acceptConncetion(handle_GET, handle_PUT)

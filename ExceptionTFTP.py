@@ -1,3 +1,5 @@
+
+# Classe per generar excepcions de TFTP
 class ExceptionTFTP(Exception):
     def __init__(self, mesessage):
         self.message = "Excepció TFTP: " + mesessage

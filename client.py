@@ -15,39 +15,42 @@ print( \
     - Per Raul Rabadan Arroyo i Jaume Pérez Medina -
 """)
 
-# Defaults
+# Valors per defecte
 serverName = 'testxaco.rabadan.dev'
 serverPort = 12064
 
+# Demanar a l'usuari si vol un servidor diferent al per defecte
 serverNameIn = input("Nom del servidor (per defecte: testxaco.rabadan.dev): ")
 if(serverNameIn != ""):
     serverName = serverNameIn
 
+# Demanar a l'usuari si vol un port diferent al per defecte
 serverPortIn = input("Port del servidor (per defecte: 12064): ")
 if(serverPortIn != ""):
     serverPort = int(serverPortIn)
 
-# Ask the user what do they want to do
+# Demanar a l'usuari si vol fer un GET o un PUT
 action = ""
 while(action != "GET" and action != "PUT"):
     action = input("GET/PUT: ")
 
-# Ask the user for a package size
+# Demanar a l'usuari una mida de paquet
 packageSizeText = "0"
 while(not packageSizeText in ["32","64","128","256","512","1024","2048"]):
     packageSizeText = input("Escull una mida de paquet vàlida: (32, 64, 128, 256, 512, 1024, 2048) bytes: ")
 packageSize = int(packageSizeText)
 
-# Ask the user for the mode
+# Demanar a l'usuari un mode de transmissió
 modeText = "0"
 while(not modeText in ["octet","netascii"]):
     modeText = input("Escull un mode de transmissió vàlid (octet, netascii): ")
 
-# Ask the user for a file
+# Demanar a l'usuari pel nom de l'arxiu
 request = ""
 while(len(request.encode()) <= 0 or 128 < len(request.encode())):
     request = input("Nom del fitxer (entre 1 i 128 characters): ")
 
+# Fer transmissió
 tt = TransmissionTFTP(blockSize = packageSize, mode=modeText)
 tt.setPeer(hostname = serverName, welcomePort = serverPort)
 
