@@ -82,7 +82,7 @@ class ServerTFTP:
 
         self._socket.close()
         transmission.bind(self._listenAdress, self._port)
-        print("S'ha tancat el socket del servidor i s'ha re-enllaçat el socket de la transmissió TFTP UDP a [" + self.listenAdress + "]:[" + str(self.port) + "]")
+        print("S'ha tancat el socket del servidor i s'ha re-enllaçat el socket de la transmissió TFTP UDP a [" + self._listenAdress + "]:[" + str(self._port) + "]")
 
         thread.start()
         thread.join()
