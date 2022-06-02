@@ -10,27 +10,27 @@ from ExceptionTFTP  import *
 class ServerTFTP:
     # Common ------------------------------------------------------------------
     def __init__(self, listenAdress = "localhost", port = 69):
-        self.listenAdress = listenAdress
-        self.port = port
-        self.requestPacketSize = 512
+        # Inicalitzar
+        self._listenAdress = listenAdress
+        self._port = port
+        self._requestPacketSize = 512
+        self._numPacketsRecv = 0
 
-        self.numPacketsRecv = 0
-
-        # Create socket
-        self.socket = socket(AF_INET,SOCK_DGRAM)
-        self.socket.bind((listenAdress, port))
+        # Crear socket
+        self._socket = socket(AF_INET,SOCK_DGRAM)
+        self._socket.bind((listenAdress, port))
         print("Socket del servidor UDP enllaçat a [" + listenAdress + "]:[" + str(port) + "]")
     
     # Esperar un paquet de inici de conexió, retorna el paquet i l'origen d'aquest
-    def __waitRequestPacket(self):
+    def _waitRequestPacket(self):
         while True:
             # Recieve packet
-            (recievedData, origin) = self.socket.recvfrom(self.requestPacketSize)
+            (recievedData, origin) = self._socket.recvfrom(self._requestPacketSize)
             packet = PacketTFTP()
             packet.setEncoded(recievedData)
 
-            print("Paquet de petició (" + str(self.numPacketsRecv) +  "º) rebut: " + str(packet))
-            self.numPacketsRecv += 1
+            print("Paquet de petició (" + str(self._numPacketsRecv) +  "º) rebut: " + str(packet))
+            self._numPacketsRecv += 1
 
             # Return if its a request, send an error and drop it otherwise
             if(packet.getOpcode() == OpcodeTFTP.RRQ() or packet.getOpcode() == OpcodeTFTP.WRQ()):
@@ -43,15 +43,15 @@ class ServerTFTP:
                 else:
                     packet.setErrorcode(ErrorcodeTFTP.UnknownTransferID())
                 packet.setErrorMsg("")
-                self.socket.sendto(packet.getEncoded(), origin)
+                self._socket.sendto(packet.getEncoded(), origin)
                 print("Petició rebuda incorrecta. Contestant: " + str(packet))
 
     # Esperar per l'inici d'una connexió. Quan arriba, inicialitza un 
     # TransmissionTFTP com a servidor i ho proporciona a la funció GETHandler o
     # PUTHandler segons correspongui
-    def acceptConncetion(self, GETHandler, PUTHandler):
+    def acceptConnection(self, GETHandler, PUTHandler):
         # Esperar inici connexió
-        (packet, origin) = self.__waitRequestPacket()
+        (packet, origin) = self._waitRequestPacket()
 
         # Detectar opcions demanades
         packetSize = 512
@@ -80,8 +80,8 @@ class ServerTFTP:
         # proporcionem el port del servidor al TransmssionTFTP. En cas de voler
         # acceptar múltiples clients, això haurà de canviar.
 
-        self.socket.close()
-        transmission.bind(self.listenAdress, self.port)
+        self._socket.close()
+        transmission.bind(self._listenAdress, self._port)
         print("S'ha tancat el socket del servidor i s'ha re-enllaçat el socket de la transmissió TFTP UDP a [" + self.listenAdress + "]:[" + str(self.port) + "]")
 
         thread.start()
@@ -91,6 +91,6 @@ class ServerTFTP:
         transmission.closeInternalSocket()
         print("Socket de transmissió tancat.")
 
-        self.socket = socket(AF_INET,SOCK_DGRAM)
-        self.socket.bind((self.listenAdress, self.port))
-        print("Socket UDP del servidor re-enllaçat a [" + self.listenAdress + "]:[" + str(self.port) + "]")
+        self._socket = socket(AF_INET,SOCK_DGRAM)
+        self._socket.bind((self._listenAdress, self._port))
+        print("Socket UDP del servidor re-enllaçat a [" + self._listenAdress + "]:[" + str(self._port) + "]")
