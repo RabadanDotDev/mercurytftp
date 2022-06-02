@@ -120,4 +120,4 @@ def handle_PUT(t, filename):
 # Crear servidor i esperar per connexions
 serv = ServerTFTP(listenAdress = listenAdress, port = welcomePort)
 while True:
-    serv.acceptConncetion(handle_GET, handle_PUT)
+    serv.acceptConnection(handle_GET, handle_PUT)
