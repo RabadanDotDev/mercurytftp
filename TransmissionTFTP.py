@@ -83,7 +83,8 @@ class TransmissionTFTP:
                 continue
             elif(not self.originUpdated):
                 (self.hostname, self.port) = origin
-                self.originUpdated = True
+
+            self.originUpdated = True
 
             # Comprovar si s'ha rebut un paquet d'error. Generar una excepció 
             # en cas afirmatiu
@@ -234,6 +235,18 @@ class TransmissionTFTP:
             print("La recepció de dades ha acabat degut a una excepció: " + str(e))
             self.bufferInClose()
 
+    # Seleccionar a quin host enviar les dades
+    def setPeer(self, hostname = "localhost", welcomePort = 69, defTimeout = 1):
+        # Set internal vars
+        self.hostname = hostname
+        self.port = welcomePort
+        self.originUpdated = False
+
+        # Create socket
+        self.socket = socket(AF_INET,SOCK_DGRAM)
+        self.socket.settimeout(defTimeout)
+        print("Socket UDP creat per enviar missatges a [" + hostname + "]:[" + str(welcomePort) + "]")
+
     # make PUT/GET ------------------------------------------------------------
     # Inicialitzar transmissió per fer un PUT i executar-ho en un altre thread
     def makePUT(self, filename):
@@ -372,11 +385,6 @@ class TransmissionTFTP:
 
         self.thread.start()
 
-    # Seleccionar opcions reconegudes
-    def setRecognizedServerOptions(self, opts):
-        self.hasRecognizedOptions = True
-        self.recognizedOptions = opts
-
     # send/read data -----------------------------------------------------------
     # Posar dades codificades en el buffer de entrada
     def sendData(self, data):
@@ -433,17 +441,6 @@ class TransmissionTFTP:
         return (0 < self.bufferDataOut.getNumBytes())
 
     # other -------------------------------------------------------------------
-    # Seleccionar a quin host enviar les dades
-    def setPeer(self, hostname = "localhost", welcomePort = 69, defTimeout = 1):
-        # Set internal vars
-        self.hostname = hostname
-        self.port = welcomePort
-        self.originUpdated = False
-
-        # Create socket
-        self.socket = socket(AF_INET,SOCK_DGRAM)
-        self.socket.settimeout(defTimeout)
-        print("Socket UDP creat per enviar missatges a [" + hostname + "]:[" + str(welcomePort) + "]")
 
     # Enviar error
     def _sendError(self, errorcode, errormessage):
@@ -479,3 +476,8 @@ class TransmissionTFTP:
     # Recuperar mode de transmissió
     def getMode(self):
         return self.mode
+
+    # Seleccionar opcions reconegudes
+    def setRecognizedServerOptions(self, opts):
+        self.hasRecognizedOptions = True
+        self.recognizedOptions = opts
